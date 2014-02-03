@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   use
-    ./libfi sampleplan.xml -t /bin/ls
+    ./libfi -t "/bin/ls -l" sampleplan.xml
   or
-    ./libfi sampleplan.xml -t /bin/cat
+    ./libfi -t /bin/cat sampleplan.xml
   to test this scenario
 -->
 <plan>

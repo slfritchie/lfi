@@ -6,14 +6,18 @@ specified by the provided configuration file
 
 USAGE:
 make
-./libfi <configuration file> [-t <subject executable>]
+./libfi [-t <subject executable>] <configuration file>
 
 Example:
-./libfi scenarios/sampleplan.xml -t "/bin/ls"
+./libfi -t "/bin/ls" scenarios/sampleplan.xml
 
 See the online documentation at https://sourceforge.net/apps/trac/lfi/wiki/Documentation for details.
 
 Changelog:
+
+2014-02-03
+
+- Forked from https://github.com/dslab-epfl/lfi.git
 
 29 March 2013
 - Improved support for MacOS
