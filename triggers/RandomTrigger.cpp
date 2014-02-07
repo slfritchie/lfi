@@ -30,7 +30,15 @@
 #include <fstream>
 #include <iostream>
 
-unsigned int RandomTrigger::seed = 0;
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_RandomTrigger_enabled = 1;
+u_int8_t g_libfi_RandomTrigger_reseed = 0;
+u_int8_t g_libfi_RandomTrigger_seed = 0;
+u_int8_t g_libfi_RandomTrigger_verbose = 0;
 
 RandomTrigger::RandomTrigger()
   : probability(0)
@@ -41,8 +49,8 @@ void RandomTrigger::Init(xmlNodePtr initData)
 {
   xmlNodePtr nodeElement, textElement;
   time_t t;
-  const char* seedFile = "rndtrigger.seed";
 
+  if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Init\r\n";
   nodeElement = initData->children;
   while (nodeElement)
   {
@@ -56,16 +64,24 @@ void RandomTrigger::Init(xmlNodePtr initData)
     nodeElement = nodeElement->next;
   }
   
-  if (!seed)
+  if (!g_libfi_RandomTrigger_seed)
   {
-    seed = (unsigned)time(&t);
-    srand(seed);
+    g_libfi_RandomTrigger_seed = (unsigned)time(&t);
   }
+  srand(g_libfi_RandomTrigger_seed);
 }
 
-bool RandomTrigger::Eval(const string*, ...)
+bool RandomTrigger::Eval(const string* fn, ...)
 {
-  if (rand() % 100 < probability)
+    if (g_libfi_RandomTrigger_reseed) {
+        srand(g_libfi_RandomTrigger_seed);
+        g_libfi_RandomTrigger_reseed = 0;
+    }
+    if (g_libfi_enabled && g_libfi_RandomTrigger_enabled &&
+        rand() % 100 < probability) {
+      if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << *fn << ", probability=" << probability << " = true\r\n";
     return true;
-  return false;
+    }
+    if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << *fn << ", probability=" << probability << " = false\r\n";
+    return false;
 }
