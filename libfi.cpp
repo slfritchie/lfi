@@ -62,6 +62,8 @@ using namespace std;
 #define FAILURE_METRIC    (int)1e6
 #define TIME_MULTIPLIER    1
 
+static int verbose = 0;
+
 static void
 usage(char* me)
 {
@@ -348,15 +350,17 @@ int compile_file(char* cfile, char* outfile)
   char cmd[1024];
   int status;
 #ifdef __APPLE__
-  sprintf(cmd, "g++  -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -Xlinker -exported_symbols_list -Xlinker symbols", outfile, cfile);
+  sprintf(cmd, "g++  -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -Xlinker -exported_symbols_list -Xlinker symbols -Xlinker -exported_symbols_list -Xlinker triggers/exported_symbols_list", outfile, cfile);
 #else
   sprintf(cmd, "g++ -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl", outfile, cfile);
 #endif
   // use the following line instead if you need debug information support (after installing libelf, libdwarf and the appropriate trigger)
   //sprintf(cmd, "g++ -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl -ldwarf -lelf", outfile, cfile);
 
-  cerr << "Compiling stub library " << outfile << " from " << cfile << endl;
-  cerr << cmd << " ..." << endl;
+  if (verbose) {
+    cerr << "[LFI] Compiling stub library " << outfile << " from " << cfile << endl;
+    cerr << "[LFI] Exec: " << cmd << endl;
+  }
 
   status = system(cmd);
   if (0 != WEXITSTATUS(status))
@@ -366,7 +370,9 @@ int compile_file(char* cfile, char* outfile)
   }
   else
   {
-    cerr << "Compiled successfully..." << endl;
+    if (verbose) {
+      cerr << "[LFI] Compiled successfully..." << endl;
+    }
   }
   return 0;
 }
@@ -380,7 +386,9 @@ int generate_stub(char* config)
   xmlChar *xpathExpr = (xmlChar*)"//function";
   xmlChar *xpathExprTriggers = (xmlChar*)"//trigger";
 
-  cerr << "Generating stub file " << STUBC << " from " << config << endl;
+  if (verbose) {
+    cerr << "[LFI] Generating stub file " << STUBC << " from " << config << endl;
+  }
 
   /* Print results */
   ofstream outf(STUBC);
@@ -482,7 +490,6 @@ int run_subject(int argc, char** argv, char* preload_library, char *envp[])
     strlcat(preload_path, ":", sizeof(preload_path));
     strlcat(preload_path, apple_explicit_libs, sizeof(preload_path));
 #endif
-    cerr << "[LFI] Preloading " << preload_path << endl;
 
     newarg = (char**)malloc((argc+1)*sizeof(char*));
     for (i = 0; i < argc; ++i)
@@ -495,8 +502,16 @@ int run_subject(int argc, char** argv, char* preload_library, char *envp[])
 #ifdef __APPLE__
       setenv(apple_env_flat, "", 1);
       setenv(apple_no_dyldcache, "avoid", 1);
+      if (verbose) {
+          cerr << "[LFI] env " << apple_env_flat << "=''" << endl;
+          cerr << "[LFI] env " << apple_no_dyldcache << "='avoid'" << endl;
+      }
 #endif
       setenv(preload, preload_path, 1);
+      if (verbose) {
+          cerr << "[LFI] env " << preload << "='" << preload_path << "'" << endl;
+          cerr << "[LFI] exec " << argv[0] << " with " << argc << "argument(s)" << endl;
+      }
       execv(argv[0], newarg);
       *runstatus = 1;
       shmdt(runstatus);
@@ -569,14 +584,13 @@ int main(int argc, char* argv[], char* envp[])
   char *run_argv[64];
   int run_argc;
   int status, crash_check, test_score;
-
   int c;
 
   crash_check = 0;
   run_target = NULL;
 
   opterr = 0;
-  while ((c = getopt (argc, argv, "t:f:")) != -1)
+  while ((c = getopt (argc, argv, "f:t:v")) != -1)
   {
     switch (c)
     {
@@ -586,6 +600,9 @@ int main(int argc, char* argv[], char* envp[])
       break;
     case 't':
       run_target = optarg;
+      break;
+    case 'v':
+      verbose = 1;
       break;
     case '?':
       if (optopt == 'f')
