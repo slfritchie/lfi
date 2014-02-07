@@ -510,7 +510,7 @@ int run_subject(int argc, char** argv, char* preload_library, char *envp[])
       setenv(preload, preload_path, 1);
       if (verbose) {
           cerr << "[LFI] env " << preload << "='" << preload_path << "'" << endl;
-          cerr << "[LFI] exec " << argv[0] << " with " << argc << "argument(s)" << endl;
+          cerr << "[LFI] exec " << argv[0] << " with " << argc << " argument(s)" << endl;
       }
       execv(argv[0], newarg);
       *runstatus = 1;
