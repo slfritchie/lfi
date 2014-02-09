@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plan>
+  <trigger id="random_0" class="RandomTrigger">
+    <args>
+      <percent>0</percent>
+    </args>
+  </trigger>
+
+
+ <function name="unlink" retval="-1" errno="EPROTONOSUPPORT">
+   <triggerx ref="random_0" />
+ </function>
+
+
+</plan>
