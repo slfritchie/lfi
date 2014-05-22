@@ -2,8 +2,9 @@
 #include <iostream>
 #include <stdarg.h>
 #include <string.h>
+#include <unistd.h>
 
-#define serverHostname  "radu-virtUbuntu9045"
+#define serverHostname  "myServerName"
 #define serverPort   11111
 
 NetInspector::NetInspector()
@@ -31,7 +32,7 @@ NetInspector::NetInspector()
     exit(-2);
 }
 
-bool NetInspector::Eval(const string& functionName, ...)
+bool NetInspector::Eval(const string* functionName, ...)
 {
   /* only intended to be used when intercepting the read function */
   va_list ap;
@@ -55,7 +56,7 @@ bool NetInspector::Eval(const string& functionName, ...)
   va_end(ap);
 
   bzero(buffer,256);
-  sprintf(buffer, "%s %d",functionName.c_str(), (int)length_i);
+  sprintf(buffer, "%s %d",functionName->c_str(), (int)length_i);
   int n = write(sockfd,buffer,strlen(buffer));
   if (n < 0) 
     exit(-3);

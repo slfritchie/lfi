@@ -47,7 +47,7 @@
 
 using namespace std;
 
-#define STUBC  ((char *) "intercept.stub.c")
+#define STUBC  ((char *) "intercept.stub.cpp")
 #ifdef __APPLE__
 #define STUBEX  ((char *) "intercept.stub.dylib")
 #else
@@ -350,12 +350,12 @@ int compile_file(char* cfile, char* outfile)
   char cmd[1024];
   int status;
 #ifdef __APPLE__
-  sprintf(cmd, "g++  -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -Xlinker -exported_symbols_list -Xlinker symbols -Xlinker -exported_symbols_list -Xlinker triggers/exported_symbols_list", outfile, cfile);
+  sprintf(cmd, "g++  -g -o %s %s inter.cpp Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -Xlinker -exported_symbols_list -Xlinker symbols -Xlinker -exported_symbols_list -Xlinker triggers/exported_symbols_list", outfile, cfile);
 #else
-  sprintf(cmd, "g++ -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl", outfile, cfile);
+  sprintf(cmd, "g++ -g -o %s %s inter.cpp Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl", outfile, cfile);
 #endif
   // use the following line instead if you need debug information support (after installing libelf, libdwarf and the appropriate trigger)
-  //sprintf(cmd, "g++ -g -o %s %s inter.c Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl -ldwarf -lelf", outfile, cfile);
+  //sprintf(cmd, "g++ -g -o %s %s inter.cpp Trigger.cpp triggers/*.cpp `xml2-config --cflags` `xml2-config --libs` -O0 -shared -fPIC -lrt -ldl -ldwarf -lelf", outfile, cfile);
 
   if (verbose) {
     cerr << "[LFI] Compiling stub library " << outfile << " from " << cfile << endl;
