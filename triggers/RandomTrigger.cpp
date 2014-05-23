@@ -30,8 +30,13 @@
 #include <fstream>
 #include <iostream>
 
-unsigned int g_libfi_RandomTrigger_seed = 0;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+unsigned int g_libfi_RandomTrigger_enabled = 1;
 unsigned int g_libfi_RandomTrigger_reseed = 0;
+unsigned int g_libfi_RandomTrigger_seed = 0;
 unsigned int g_libfi_RandomTrigger_verbose = 0;
 
 RandomTrigger::RandomTrigger()
@@ -71,7 +76,7 @@ bool RandomTrigger::Eval(const string* fn, ...)
         srand(g_libfi_RandomTrigger_seed);
         g_libfi_RandomTrigger_reseed = 0;
     }
-    if (rand() % 100 < probability) {
+    if (g_libfi_RandomTrigger_enabled && rand() % 100 < probability) {
       if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << fn << ", probability=" << probability << " = true\r\n";
     return true;
     }
