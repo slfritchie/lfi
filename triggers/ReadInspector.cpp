@@ -28,6 +28,14 @@
 #include <iostream>
 #include <stdarg.h>
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_ReadInspector_enabled = 1;
+u_int8_t g_libfi_ReadInspector_verbose = 0;
+
 ReadInspector::ReadInspector()
 {
 }
@@ -38,6 +46,7 @@ bool ReadInspector::Eval(const string* functionName, ...)
   va_list ap;
   int fd;
   size_t size;
+  bool retval;
 
   va_start(ap, functionName);
   fd = va_arg(ap, int);
@@ -46,5 +55,8 @@ bool ReadInspector::Eval(const string* functionName, ...)
   va_end(ap);
 
   /* inject only when reading 1024 bytes from stdin */
-  return (fd == 0 && size == 1024);
+  retval = g_libfi_enabled && g_libfi_ReadInspector_enabled &&
+           (fd == 0 && size == 1024);
+  if (g_libfi_ReadInspector_verbose) cerr << "ReadInspector::Eval fn=" << *functionName << ", " << retval << "\r\n";
+  return retval;
 }
