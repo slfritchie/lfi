@@ -32,6 +32,14 @@
 #include <pthread.h>
 #endif
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_StateTrigger_enabled = 1;
+u_int8_t g_libfi_StateTrigger_verbose = 0;
+
 #ifdef __x86_64__
   #define REG_BP  "rbp"
 #else
@@ -43,6 +51,7 @@ void StateTrigger::Init(xmlNodePtr initData)
 {
   xmlNodePtr nodeElement, nodeElementLvl2, textElement;
 
+  if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Init\r\n";
   nodeElement = initData->children;
   while (nodeElement)
   {
@@ -103,7 +112,7 @@ void *__libc_stack_end;
 extern void *__libc_stack_end;
 #endif
 
-bool StateTrigger::Eval(const string*, ...)
+bool StateTrigger::Eval(const string* fn, ...)
 {
   int i;
 #ifdef __APPLE__
@@ -119,17 +128,27 @@ bool StateTrigger::Eval(const string*, ...)
   struct layout *bp = (struct layout *)bpx;
 
   for (i = (int)var.frame+2; i; --i) {
-    if ((void*)bp > __libc_stack_end || ((long)bp & 3))
+    if ((void*)bp > __libc_stack_end || ((long)bp & 3)) {
+      if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Eval fn=" << *fn << ", true\r\n";
       return false;
+    }
     bp = bp->bp;
   }
   if (VAR_INT == var.type) { 
-    if (var.targetValue.targetInt == *(int*)((char*)bp + (long)var.offset))
+    if (g_libfi_enabled && g_libfi_StateTrigger_enabled &&
+        var.targetValue.targetInt == *(int*)((char*)bp + (long)var.offset)) {
+      if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Eval fn=" << *fn << ", true\r\n";
       return true;
+    }
+    if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Eval fn=" << *fn << ", false\r\n";
     return false;
   }
   char* target = *(char**)((char*)(bp) + (long)var.offset);
-  if (!strcmp(var.targetValue.targetString, target))
+  if (g_libfi_enabled && g_libfi_StateTrigger_enabled &&
+      !strcmp(var.targetValue.targetString, target)) {
+    if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Eval fn=" << *fn << ", true\r\n";
     return true;
+  }
+  if (g_libfi_StateTrigger_verbose) cerr << "StateTrigger::Eval fn=" << *fn << ", false\r\n";
   return false;
 }
