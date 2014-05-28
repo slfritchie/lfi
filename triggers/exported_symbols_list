@@ -2,3 +2,5 @@ _g_libfi_RandomTrigger_enabled
 _g_libfi_RandomTrigger_reseed
 _g_libfi_RandomTrigger_seed
 _g_libfi_RandomTrigger_verbose
+_g_libfi_TimerTrigger_enabled
+_g_libfi_TimerTrigger_verbose

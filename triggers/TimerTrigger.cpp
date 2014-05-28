@@ -27,6 +27,14 @@
 #include "TimerTrigger.h"
 #include <iostream>
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_TimerTrigger_enabled = 1;
+u_int8_t g_libfi_TimerTrigger_verbose = 0;
+
 StartTime TimerTrigger::start;
 
 StartTime::StartTime()
@@ -44,6 +52,7 @@ void TimerTrigger::Init(xmlNodePtr initData)
 {
   xmlNodePtr nodeElement, textElement;
 
+  if (g_libfi_TimerTrigger_verbose) cerr << "TimerTrigger::Init\r\n";
   nodeElement = initData->children;
   while (nodeElement)
   {
@@ -58,14 +67,16 @@ void TimerTrigger::Init(xmlNodePtr initData)
   }
 }
 
-bool TimerTrigger::Eval(const string*, ...)
+bool TimerTrigger::Eval(const string* fn, ...)
 {
   if (go)
     return true;
 
-  if ((unsigned)time(NULL) - start.st_time >= wait) {
+  if (g_libfi_enabled && g_libfi_TimerTrigger_enabled &&
+      ((unsigned)time(NULL) - start.st_time >= wait)) {
     go = 1;
   }
+  if (g_libfi_TimerTrigger_verbose) cerr << "TimerTrigger::Eval fn=" << *fn << ", go=" << go << "\r\n";
 
   if (go)
     return true;
