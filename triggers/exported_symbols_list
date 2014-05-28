@@ -1,3 +1,5 @@
+_g_libfi_PrintStackTrigger_enabled
+_g_libfi_PrintStackTrigger_verbose
 _g_libfi_RandomTrigger_enabled
 _g_libfi_RandomTrigger_reseed
 _g_libfi_RandomTrigger_seed
