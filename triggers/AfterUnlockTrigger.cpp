@@ -1,10 +1,19 @@
 
 #include "AfterUnlockTrigger.h"
 #include <fstream>
+#include <iostream>
 #include <unistd.h>
 #include <stdarg.h>
 #include <execinfo.h>
 #include <string.h>
+
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_AfterUnlockTrigger_enabled = 1;
+u_int8_t g_libfi_AfterUnlockTrigger_verbose = 0;
 
 using namespace std;
 
@@ -16,6 +25,7 @@ void AfterUnlockTrigger::Init(xmlNodePtr initData)
 {
   xmlNodePtr nodeElement, textElement;
 
+  if (g_libfi_AfterUnlockTrigger_verbose) cerr << "AfterUnlockTrigger::Init\r\n";
   nodeElement = initData->children;
   while (nodeElement)
   {
@@ -117,12 +127,16 @@ bool AfterUnlockTrigger::Eval(const string* functionName, ...)
       }
 */      
       if (it != lastUnlockInfo.end()) {
-        if (0 == strcmp(it->second.file, ui.file) && 
-          ui.line - it->second.line < lineCount)
+        if (g_libfi_enabled && g_libfi_AfterUnlockTrigger_enabled &&
+            0 == strcmp(it->second.file, ui.file) &&
+            ui.line - it->second.line < lineCount) {
+          if (g_libfi_AfterUnlockTrigger_verbose) cerr << "AfterUnlockTrigger::Eval fn=" << *functionName << ", true\r\n";
           return true;
+        }
       }
     }
   }
 
+  if (g_libfi_AfterUnlockTrigger_verbose) cerr << "AfterUnlockTrigger::Eval fn=" << *functionName << ", false\r\n";
   return false;
 }
