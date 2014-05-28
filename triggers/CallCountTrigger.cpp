@@ -27,6 +27,14 @@
 #include "CallCountTrigger.h"
 #include <iostream>
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_CallCountTrigger_enabled = 1;
+u_int8_t g_libfi_CallCountTrigger_verbose = 0;
+
 CallCountTrigger::CallCountTrigger()
   : callCount(0)
 {
@@ -36,6 +44,7 @@ void CallCountTrigger::Init(xmlNodePtr initData)
 {
   xmlNodePtr nodeElement, textElement;
 
+  if (g_libfi_CallCountTrigger_verbose) cerr << "CallCountTrigger::Init\r\n";
   nodeElement = initData->children;
   while (nodeElement)
   {
@@ -50,15 +59,21 @@ void CallCountTrigger::Init(xmlNodePtr initData)
   }
 }
 
-bool CallCountTrigger::Eval(const string*, ...)
+bool CallCountTrigger::Eval(const string* fn, ...)
 {
+  if (! (g_libfi_enabled && g_libfi_CallCountTrigger_enabled)) {
+    if (g_libfi_CallCountTrigger_verbose) cerr << "CallCountTrigger::Eval fn=" << *fn << ", false\r\n";
+    return false;
+  }
   ++callCount;
   // binary search? not useful for a reasonably small number of call counts
   for (vector<int>::iterator it = callCounts.begin(), itend = callCounts.end(); it != itend; ++it)
   {
     if (callCount == *it) {
+      if (g_libfi_CallCountTrigger_verbose) cerr << "CallCountTrigger::Eval fn=" << *fn << ", true\r\n";
       return true;
     }
   }
+  if (g_libfi_CallCountTrigger_verbose) cerr << "CallCountTrigger::Eval fn=" << *fn << ", false\r\n";
   return false;
 }
