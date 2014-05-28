@@ -1,3 +1,5 @@
+_g_libfi_NetInspector_enabled
+_g_libfi_NetInspector_verbose
 _g_libfi_PrintStackTrigger_enabled
 _g_libfi_PrintStackTrigger_verbose
 _g_libfi_RandomTrigger_enabled

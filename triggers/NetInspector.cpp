@@ -4,6 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_NetInspector_enabled = 1;
+u_int8_t g_libfi_NetInspector_verbose = 0;
+
 #define serverHostname  "myServerName"
 #define serverPort   11111
 
@@ -46,6 +54,11 @@ bool NetInspector::Eval(const string* functionName, ...)
   struct sockaddr *dest_addr_i;
   socklen_t dest_len_i;
 
+  if (! (g_libfi_enabled && g_libfi_NetInspector_enabled)) {
+    if (g_libfi_NetInspector_verbose) cerr << "NetInspector::Eval fn=" << *functionName << ", false\r\n";
+    return 0;
+  }
+
   va_start(ap, functionName);
   socket_i = va_arg(ap, int);
   message_i = va_arg(ap, char*);
@@ -64,7 +77,10 @@ bool NetInspector::Eval(const string* functionName, ...)
   n = read(sockfd,receiveBuf,10);
   if (n < 0) 
     exit(4);
-  if ( receiveBuf[0] == '1' )
-    return 1;  
+  if ( receiveBuf[0] == '1' ) {
+    if (g_libfi_NetInspector_verbose) cerr << "NetInspector::Eval fn=" << *functionName << ", true\r\n";
+    return 1;
+  }
+  if (g_libfi_NetInspector_verbose) cerr << "NetInspector::Eval fn=" << *functionName << ", false\r\n";
   return 0;
 }
