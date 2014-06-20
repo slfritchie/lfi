@@ -1,3 +1,4 @@
+_g_libfi_enabled
 _g_libfi_AfterUnlockTrigger_enabled
 _g_libfi_AfterUnlockTrigger_verbose
 _g_libfi_CallCountTrigger_enabled
