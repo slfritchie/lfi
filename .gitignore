@@ -1,4 +1,5 @@
 intercept.stub.c
+intercept.stub.cpp
 intercept.stub.dylib
 intercept.stub.dylib.dSYM
 libfi
