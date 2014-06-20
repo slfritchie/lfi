@@ -30,14 +30,15 @@
 #include <fstream>
 #include <iostream>
 
+extern u_int8_t g_libfi_enabled;
 /*
 ** After editing this list of global vars, please update the
 ** triggers/exported_symbols_list file
 */
-unsigned int g_libfi_RandomTrigger_enabled = 1;
-unsigned int g_libfi_RandomTrigger_reseed = 0;
-unsigned int g_libfi_RandomTrigger_seed = 0;
-unsigned int g_libfi_RandomTrigger_verbose = 0;
+u_int8_t g_libfi_RandomTrigger_enabled = 1;
+u_int8_t g_libfi_RandomTrigger_reseed = 0;
+u_int8_t g_libfi_RandomTrigger_seed = 0;
+u_int8_t g_libfi_RandomTrigger_verbose = 0;
 
 RandomTrigger::RandomTrigger()
   : probability(0)
@@ -76,10 +77,11 @@ bool RandomTrigger::Eval(const string* fn, ...)
         srand(g_libfi_RandomTrigger_seed);
         g_libfi_RandomTrigger_reseed = 0;
     }
-    if (g_libfi_RandomTrigger_enabled && rand() % 100 < probability) {
-      if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << fn << ", probability=" << probability << " = true\r\n";
+    if (g_libfi_enabled && g_libfi_RandomTrigger_enabled &&
+        rand() % 100 < probability) {
+      if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << *fn << ", probability=" << probability << " = true\r\n";
     return true;
     }
-    if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << fn << ", probability=" << probability << " = false\r\n";
+    if (g_libfi_RandomTrigger_verbose) cerr << "RandomTrigger::Eval fn=" << *fn << ", probability=" << probability << " = false\r\n";
     return false;
 }

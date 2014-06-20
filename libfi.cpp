@@ -63,12 +63,13 @@ using namespace std;
 #define TIME_MULTIPLIER    1
 
 static int verbose = 0;
+static int default_enabled = 1;
 
 static void
 usage(char* me)
 {
   cout << "Usage: ";
-  cout << me << " [-t <targetExecutable>] <configurationFile>" << endl;
+  cout << me << " [-e 0|1] [-f] [-t <targetExecutable>] [-v] <configurationFile>" << endl;
 }
 
 static void
@@ -394,7 +395,9 @@ int generate_stub(char* config)
   ofstream outf(STUBC);
 
   outf << "#include \"inter.h\"" << endl;
+  outf << "#include <sys/types.h>" << endl;
   outf << "STUB_VAR_DECL" << endl << endl;
+  outf << "u_int8_t g_libfi_enabled = " << default_enabled << ";" << endl;
 
   doc = xmlParseFile(config);
   if (doc == NULL) {
@@ -590,10 +593,13 @@ int main(int argc, char* argv[], char* envp[])
   run_target = NULL;
 
   opterr = 0;
-  while ((c = getopt (argc, argv, "f:t:v")) != -1)
+  while ((c = getopt (argc, argv, "e:f:t:v")) != -1)
   {
     switch (c)
     {
+    case 'e':
+      default_enabled = atoi(optarg);
+      break;
     case 'f':
       crash_check = 1;
       crash_create = optarg;

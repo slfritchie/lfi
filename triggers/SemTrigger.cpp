@@ -29,6 +29,14 @@
 #include <stdarg.h>
 #include <execinfo.h>
 
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_SemTrigger_enabled = 1;
+u_int8_t g_libfi_SemTrigger_verbose = 0;
+
 #ifdef __APPLE__
 pthread_key_t SemTrigger::lockCount_key = 0;
 #else
@@ -76,8 +84,11 @@ bool SemTrigger::Eval(const string* functionName, ...)
   }
   else
   {
-    if (get_lockCount() > 0)
+    if (g_libfi_enabled && g_libfi_SemTrigger_enabled &&
+        get_lockCount() > 0)
+      if (g_libfi_SemTrigger_verbose) cerr << "SemTrigger::Eval fn=" << *functionName << ", true\r\n";
       return true;
   }
+  if (g_libfi_SemTrigger_verbose) cerr << "SemTrigger::Eval fn=" << *functionName << ", false\r\n";
   return false;
 }

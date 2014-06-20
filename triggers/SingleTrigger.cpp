@@ -26,18 +26,30 @@
 
 #include "SingleTrigger.h"
 #include <stdio.h>
+#include <iostream>
+
+extern u_int8_t g_libfi_enabled;
+/*
+** After editing this list of global vars, please update the
+** triggers/exported_symbols_list file
+*/
+u_int8_t g_libfi_SingleTrigger_enabled = 1;
+u_int8_t g_libfi_SingleTrigger_verbose = 0;
 
 SingleTrigger::SingleTrigger()
 {
   triggered = 0;
 }
 
-bool SingleTrigger::Eval(const string*, ...)
+bool SingleTrigger::Eval(const string* fn, ...)
 {
-  if (triggered) {
+  if (g_libfi_enabled && g_libfi_SingleTrigger_enabled &&
+      triggered) {
+    if (g_libfi_SingleTrigger_verbose) cerr << "SingleTrigger::Eval fn=" << *fn << ", false\r\n";
     return false;
   }
 
   triggered = 1;
+  if (g_libfi_SingleTrigger_verbose) cerr << "SingleTrigger::Eval fn=" << *fn << ", true\r\n";
   return true;
 }
