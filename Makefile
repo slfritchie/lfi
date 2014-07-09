@@ -3,3 +3,4 @@ build:
 
 clean:
 	rm -rf inter.c.* intercept.stub*
+	rm -f libfi
